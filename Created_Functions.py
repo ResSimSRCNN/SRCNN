@@ -56,19 +56,7 @@ def all_error_calc(model_pic, truth_pic, total_errors):
     return errors
 
 
-def tanh_a4(x, a=4):
-    func = K.tanh(x * a - a / 2) / 2 + 0.5
-    return func
-
-
-def tanh_a10(x, a=10):
-    func = K.tanh(x * a - a / 2) / 2 + 0.5
-    return func
-
-
-def matrix_org(direction,
-               train_set=250,
-               ):
+def matrix_org(direction, train_set=250):
     mat_contents1 = sio.loadmat(direction)
     test_set = len(mat_contents1['K']) - train_set
 
@@ -92,10 +80,7 @@ def matrix_org(direction,
     return training, testing
 
 
-def matrix_org_with_timesteps(
-        direction,
-        train_set=250,
-):
+def matrix_org_with_timesteps(direction, train_set=250):
     mat_contents1 = sio.loadmat(direction)
     test_set = len(mat_contents1['K']) - train_set
 
@@ -222,8 +207,7 @@ def plotting(pics, figure_num=None, names="none", color_map=mplt.cm.viridis):
     plt.savefig('./Figures/training/figure number[' + str(figure_num + 1) + '].png')
 
 
-def plotting_one_image(pic, num=0, name="none", color=color_map(),
-                       path="C:/Users/xxraz/PycharmProjects/Honours_project/html_data/"):
+def plotting_one_image(pic, num=0, name="none", color=color_map(), path="./data/"):
     plt.rcParams['figure.figsize'] = 4, 4
 
     fig, ax = plt.subplots()
@@ -262,7 +246,7 @@ def get_model_and_truth_pic(model, pic, set_num):
     return modified_pic, truth_pic, input_pic
 
 
-def plot_error(model_fitting, num="", path="C:/Users/fbarg/PycharmProjects/pythonProject2/html_data/"):
+def plot_error(model_fitting, num="", path="./data/"):
     plt.figure(figsize=(6, 4))
     plt.plot(model_fitting.history['loss'])
     plt.plot(model_fitting.history['val_loss'], '--')
@@ -282,49 +266,6 @@ def plot_error(model_fitting, num="", path="C:/Users/fbarg/PycharmProjects/pytho
     plt.savefig(path2)
 
     return path1, path2
-
-
-def plotting_with_timesteps(pics, figure_num, names="none", color_map=mplt.cm.viridis):
-    plt.rcParams['figure.figsize'] = 35, 10.5
-    plot_dim = [6, 11]
-    fig, plot = plt.subplots(plot_dim[0], plot_dim[1])
-    norm = mplt.colors.Normalize(vmin=0, vmax=1)
-    axes = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-    for y in range(plot_dim[0]):
-        for x in range(plot_dim[1]):
-            if y < 3:
-                plot[y, x].imshow(
-                    pics[y][x, :, :, :, 0:1],
-                    cmap=color_map,
-                    norm=norm,
-                    extent=[0, 100, 100, 0])
-            else:
-                plot[y, x].imshow(
-                    pics[y][x, :, :, :, 1:2],
-                    cmap=color_map,
-                    norm=norm,
-                    extent=[0, 100, 100, 0])
-
-            plot[y, x].set_title(names[y] + " t= " + x.__str__())
-            plot[y, x].set_ylabel("Pixel Count")
-            plot[y, x].set_xlabel("Pixel Count")
-            plot[y, x].set_yticks(axes, minor=True)
-            plot[y, x].set_xticks(axes, minor=True)
-
-            cbar = fig.colorbar(
-                mappable=mplt.cm.ScalarMappable(cmap=color_map),
-                ax=plot[y, x],
-                orientation="vertical")
-
-            # set the spacing between subplots
-            plt.subplots_adjust(left=0.1,
-                                bottom=0.1,
-                                right=0.9,
-                                top=0.9,
-                                wspace=0.4,
-                                hspace=0.4)
-
-    plt.savefig('./Figures/training_timesteps/figure number[' + str(figure_num + 1) + '].png')
 
 
 def psnr(y_true, y_pred):
@@ -358,49 +299,40 @@ def rearrange_parameters(array, parameter):
 
     return output
 
-def plotting_RNN(pics, figure_num=None, names="none", color_map=mplt.cm.viridis):
-    if figure_num is None:
-        figure_num = 0
-    plt.rcParams['figure.figsize'] = 35, 10.5
-    plot_dim = [6, 4]
+
+def plotting_with_timesteps(pics, figure_num, names="none", color_map=mplt.cm.viridis):
+    plt.rcParams['figure.figsize'] = 20, 20
+    rows = 4
+    plot_dim = [rows, 4]
     fig, plot = plt.subplots(plot_dim[0], plot_dim[1])
-    count = 0
     norm = mplt.colors.Normalize(vmin=0, vmax=1)
-    axes = numpy.array([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
-
-    for x in range(plot_dim[0]):
-        for y in range(plot_dim[1]):
-
-            plot[x, y].imshow(
-                pics[count],
-                cmap=color_map,
-                norm=norm
-            )
-            plot[x, y].set_title(names[count])
-            plot[x, y].set_ylabel("Pixel Count")
-            plot[x, y].set_xlabel("Pixel Count")
-
-            if numpy.shape(pics[count]) != [100, 100, 1]:
-                new_axes = axes[0:6]
+    axes = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    for y in range(plot_dim[0]):
+        for x in range(plot_dim[1]):
+            if y < int(rows/2):
+                plot[y, x].imshow(
+                    pics[y][int(x*3+1), :, :, 0:1],
+                    cmap=color_map,
+                    norm=norm,
+                    extent=[0, 100, 100, 0])
             else:
-                new_axes = axes
+                plot[y, x].imshow(
+                    pics[y-int(rows/2)][int(x*3+1), :, :, 1:2],
+                    cmap=color_map,
+                    norm=norm,
+                    extent=[0, 100, 100, 0])
 
-            plot[x, y].set_yticks(new_axes, minor=True)
-            plot[x, y].set_xticks(new_axes, minor=True)
+            plot[y, x].set_title(" t= " + str(x*3+1))
+            plot[y, x].set_ylabel("Pixel Count")
+            plot[y, x].set_xlabel("Pixel Count")
+            plot[y, x].set_yticks(axes, minor=True)
+            plot[y, x].set_xticks(axes, minor=True)
+
             cbar = fig.colorbar(
                 mappable=mplt.cm.ScalarMappable(cmap=color_map),
-                ax=plot[x, y],
+                ax=plot[y, x],
                 orientation="vertical")
-
-            if (count == 0) or (count == 1):
-                cbar.set_label('Permeability')
-            else:
-                cbar.set_label('Saturation')
-
-            if count == ((plot_dim[0] * plot_dim[1]) - 2):
-                count = 1
-            else:
-                count += 2
+            cbar.set_label('Saturation')
 
             # set the spacing between subplots
             plt.subplots_adjust(left=0.1,
@@ -410,4 +342,4 @@ def plotting_RNN(pics, figure_num=None, names="none", color_map=mplt.cm.viridis)
                                 wspace=0.4,
                                 hspace=0.4)
 
-    plt.savefig('./RNN figure number[' + str(figure_num) + '].png')
+    plt.savefig('./RNN figure number[' + str(figure_num + 1) + '].png')
